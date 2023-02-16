@@ -1,7 +1,12 @@
+import 'dart:math';
+
 import 'package:caren/onboarding.dart';
+import 'package:confetti/confetti.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_phone_auth_handler/firebase_phone_auth_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,15 +27,26 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return FirebasePhoneAuthProvider(
       child: MaterialApp(
-        debugShowCheckedModeBanner:false,
-        title: 'Flutter Demo',
+        color: Color(0xffff001e05),
+        debugShowCheckedModeBanner: false,
+        title: 'CAREN',
         theme: ThemeData(
+           appBarTheme: AppBarTheme(
+             systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Color(0xffff001e05),
+            
+             )),
+          textTheme: GoogleFonts.robotoMonoTextTheme(textTheme).copyWith(
+              // bodyMedium: GoogleFonts.oswald(textStyle: textTheme.bodyMedium),
+              ),
           // add textbutton theme
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              foregroundColor: Color(0xFFFF093F12),
+              foregroundColor: Color(0xffff093f12),
             ),
           ),
 
@@ -41,7 +57,7 @@ class MyApp extends StatelessWidget {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return const MyHomePage(title: 'NGA');
+              return MyHomePage(title: 'NGA', streamUser: snapshot);
             }
             return OnBoarding();
           },
@@ -52,25 +68,35 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.streamUser,
+  });
   final String title;
+  final AsyncSnapshot<User?> streamUser;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  late ConfettiController _controllerBottomCenter;
+  @override
+  void initState() {
+    super.initState();
+    _controllerBottomCenter =
+        ConfettiController(duration: const Duration(seconds: 1));
+  }
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void dispose() {
+    _controllerBottomCenter.dispose();
+    super.dispose();
+  }
+
+  Future goConfetti() async {
+    _controllerBottomCenter.play();
   }
 
   @override
@@ -80,16 +106,65 @@ class _MyHomePageState extends State<MyHomePage> {
         child: CustomScrollView(
           slivers: <Widget>[
             SliverAppBar(
+              stretch: true,
               pinned: true,
               title: Text(
                 'NGA • NORWEGIAN GAME AWARDS',
-                style: TextStyle(fontSize: 12),
+                style: TextStyle(fontSize: 13 ,color: Color(0xffff88ffc6), fontWeight: FontWeight.w400),
               ),
-              backgroundColor: Color(0xFFFF88FFC6),
-              expandedHeight: 400.0,
+              backgroundColor: Color(0xffff001e05),
+              expandedHeight: 600.0,
+              stretchTriggerOffset: 200,
+              onStretchTrigger: () => goConfetti(),
               flexibleSpace: FlexibleSpaceBar(
-                stretchModes: [StretchMode.zoomBackground],
-                background: UserHeaderInfo(),
+                expandedTitleScale: 1.2,
+                stretchModes: const [
+                  StretchMode.zoomBackground,
+                  StretchMode.fadeTitle
+                ],
+                background: StreamBuilder<User?>(
+                  stream: FirebaseAuth.instance.userChanges(),
+                  builder: (BuildContext context, snapshot) {
+                    if (snapshot.data != null) {
+                      _controllerBottomCenter.play();
+                      if (snapshot.data!.displayName != null) {
+                        return Stack(
+                          children: [
+                            UserHeaderInfo(
+                                name: snapshot.data!.displayName!,
+                                uid: snapshot.data!.uid),
+                            //BOTTOM CENTER
+                            Align(
+                              alignment: Alignment(0, -0.3),
+                              child: ConfettiWidget(
+                                colors: const [
+                                  // add green colors
+                                  Color(0xffff88ffc6),
+                                  Color(0xffff11FF8D),
+                                  Color(0xffffE8FDF3),
+                                  Color(0xffffC5FBE1),
+                                ],
+                                confettiController: _controllerBottomCenter,
+                                blastDirection: -pi / 2,
+                                emissionFrequency: 0.05,
+                                blastDirectionality:
+                                    BlastDirectionality.explosive,
+                                numberOfParticles: 30,
+                                maxBlastForce: 49,
+                                minBlastForce: 20,
+                                gravity: 0.3,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    }
+                    return LinearProgressIndicator(
+                      color: Color.fromARGB(255, 13, 70, 43),
+                      backgroundColor: Color(0xffff001e05),
+                    );
+                  },
+                ),
               ),
             ),
             SliverFixedExtentList(
@@ -97,14 +172,17 @@ class _MyHomePageState extends State<MyHomePage> {
               delegate: SliverChildListDelegate(
                 [
                   Container(
-                    color: Colors.white,
+                    color: Color(0xffff88ffc6),
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: const [
                           Text(
                             "23 MARS 12:00 - 18:00",
                             style: TextStyle(
                                 fontWeight: FontWeight.w600, fontSize: 20),
+                          ),
+                          SizedBox(
+                            height: 8,
                           ),
                           Text("GLØSHAUGEN _ REALFAGSBYGGET",
                               style: TextStyle(
@@ -115,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.white,
                     child: CustomButtonFixed(
                         text: "SE VÅRE PREMIER",
-                        subtext: "SE VÅRE PREMIER",
+                        subtext: "airpods, ps5, xbox series x, nintendo switch",
                         icon: Icons.campaign_rounded,
                         onPressed: () => {}),
                   ),
@@ -129,25 +207,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Container(color: Colors.white),
                   Container(color: Colors.white),
-                  Container(color: Colors.yellow),
-                  Container(color: Colors.pink),
+                  Container(color: Colors.white),
+                  Container(
+                    color: Colors.white,
+                    child: TextButton(
+                      onPressed: () => FirebaseAuth.instance.signOut(),
+                      child: Text("Logg av"),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
 
 class UserHeaderInfo extends StatefulWidget {
-  UserHeaderInfo({Key? key}) : super(key: key);
+  final String name, uid;
+  const UserHeaderInfo({Key? key, required this.name, required this.uid})
+      : super(key: key);
 
   @override
   State<UserHeaderInfo> createState() => _UserHeaderInfoState();
@@ -158,40 +239,46 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
   Widget build(BuildContext context) {
     return Theme(
       data: ThemeData(
-          textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white))),
+          textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white))),
       child: Container(
-        color: Color(0xFFFF001E05),
+        width: double.infinity,
+        color: Color(0xffff001e05),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // add img ngalogo.png form assers
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
-              child: Row(
-                children: [
-                  Image.asset(
-                    "assets/ngalogo.png",
-                    width: 80,
-                    height: 80,
-                    color: Color(0xFFFFAEBFB1),
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Image.asset(
+            //         "assets/ngaw.png",
+            //         width: 100,
+            //         height: 100,
+            //         color: Color(0xffffaebfb1),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             QrImage(
-              gapless: false,
+              gapless: true,
+              embeddedImage: AssetImage("assets/qrlogo.png"),
+              embeddedImageStyle: QrEmbeddedImageStyle(
+                // size: Size(76, 54),
+              ),
               dataModuleStyle:
-                  QrDataModuleStyle(dataModuleShape: QrDataModuleShape.circle),
-              foregroundColor: Color(0xFFFF88FFC6),
-              data: "1234567890",
+                  QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square),
+              foregroundColor: Color(0xffff88ffc6),
+              data: widget.uid,
               version: QrVersions.auto,
-              size: 200.0,
+              size: 260.0,
             ),
             SizedBox(
               height: 32,
             ),
             Text(
-              "OLA NORDMANN",
+              widget.name,
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -200,7 +287,7 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
             SizedBox(
               height: 8,
             ),
-            Text("#plas-234234", style: TextStyle(color: Colors.white)),
+            Text(widget.uid, style: TextStyle(color: Colors.white)),
             SizedBox(
               height: 32,
             ),
@@ -226,38 +313,36 @@ class CustomButtonFixed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16),
-      child: TextButton(
-        onPressed: () => {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Icon(
-                icon,
-                size: 32,
-              ),
+    return Container(
+      constraints: BoxConstraints(maxWidth: 500),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16),
+        child: TextButton.icon(
+          onPressed: () => {},
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 16),
+            child: Icon(
+              icon,
+              size: 32,
             ),
-            SizedBox(
-              width: 32,
+          ),
+          label: SizedBox(
+            width: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  text,
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                ),
+                Text(
+                  subtext,
+                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
+                ),
+              ],
             ),
-            Container(
-              width: 200,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    text,
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                  Text(subtext),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
