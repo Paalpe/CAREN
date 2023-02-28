@@ -43,6 +43,8 @@ dependencies:
   google_fonts: ^4.0.3
   animated_text_kit: ^4.2.2
   confetti: ^0.7.0
+  http: ^0.13.5
+
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,8 @@ flutter:
     - assets/ngab.png
     - assets/ngaw.png
     - assets/qrlogo.png
+    - assets/entries.json
+ 
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

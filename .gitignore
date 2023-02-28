@@ -67,3 +67,6 @@ node_modules/
 
 .dart_tools/*
 .dart_tool/*
+build
+build/*
+build/
