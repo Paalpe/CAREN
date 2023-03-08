@@ -67,9 +67,6 @@ node_modules/
 
 .dart_tools/*
 .dart_tool/*
+build
+build/*
 build/
-build/**
-build/web
-build/web/.last_build_id
-build/web/.last_build_id
-build/c075001b96339384a97db4862b8ab8db.cache.dill.track.dill

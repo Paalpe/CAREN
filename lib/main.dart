@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:caren/admin/admin_panel.dart';
+import 'package:caren/game_sliver.dart';
 import 'package:caren/onboarding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:confetti/confetti.dart';
@@ -82,6 +83,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _scrollController = ScrollController();
   late ConfettiController _controllerBottomCenter;
   int adminCounter = 0;
   @override
@@ -94,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _controllerBottomCenter.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -106,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Center(
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: <Widget>[
             SliverAppBar(
               stretch: true,
@@ -166,8 +170,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Stack(
                           children: [
                             UserHeaderInfo(
+                                phone: snapshot.data!.phoneNumber!,
                                 name: snapshot.data!.displayName!,
-                                uid: snapshot.data!.uid),
+                                uid: snapshot.data!.phoneNumber!),
                             //BOTTOM CENTER
                             Align(
                               alignment: Alignment(0, -0.3),
@@ -176,6 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   // add green colors
                                   Color(0xffff88ffc6),
                                   Color(0xffff11FF8D),
+                                  Color(0xffff9105E6),
+                                  Color.fromARGB(255, 184, 78, 249),
                                   Color(0xffffE8FDF3),
                                   Color(0xffffC5FBE1),
                                 ],
@@ -202,55 +209,101 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: 200,
+                // color: Color(0xffff88ffc6),
+                // color:  Color(0xffff9105E6),,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        "23 MARS 14:00 - 18:00",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                            color: Color(0xffff9105E6)),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Text("GLØSHAUGEN _ REALFAGSBYGGET",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 13))
+                    ]),
+              ),
+            ),
+            SliverGamesFromItch(scrollController: _scrollController),
+
+            // SliverFixedExtentList(
+            //   itemExtent: 150.0,
+            //   delegate: SliverChildListDelegate(
+            //     [
+            //       Container(
+            //         // color: Color(0xffff88ffc6),
+            //         // color:  Color(0xffff9105E6),,
+            //         child: Column(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             children: const [
+            //               Text(
+            //                 "23 MARS 14:00 - 18:00",
+            //                 style: TextStyle(
+            //                     fontWeight: FontWeight.w600,
+            //                     fontSize: 20,
+            //                     color: Color(0xffff9105E6)),
+            //               ),
+            //               SizedBox(
+            //                 height: 8,
+            //               ),
+            //               Text("GLØSHAUGEN _ REALFAGSBYGGET",
+            //                   style: TextStyle(
+            //                       fontWeight: FontWeight.w600, fontSize: 13))
+            //             ]),
+            //       ),
+            //       // Container(
+            //       //   color: Colors.white,
+            //       //   child: CustomButtonFixed(
+            //       //       text: "SE VÅRE PREMIER",
+            //       //       subtext: "airpods, ps5, xbox series x, nintendo switch",
+            //       //       icon: Icons.campaign_rounded,
+            //       //       onPressed: () => {}),
+            //       // ),
+            //       // Container(
+            //       //   color: Colors.white,
+            //       //   child: CustomButtonFixed(
+            //       //       text: "SE VÅRE SPILL",
+            //       //       subtext: "55 forksjellige spill, 200 utviklere",
+            //       //       icon: Icons.stadium_rounded,
+            //       //       onPressed: () => {}),
+            //       // ),
+            //       // Container(color: Colors.white),
+            //       // Container(color: Colors.white),
+            //       // Container(color: Colors.white),
+            //       // Container(
+            //       //   color: Colors.white,
+            //       //   child: TextButton(
+            //       //     onPressed: () => FirebaseAuth.instance.signOut(),
+            //       //     child: Text("Logg av"),
+            //       //   ),
+            //       // ),
+            //     ],
+            //   ),
+            // ),
             SliverFixedExtentList(
-              itemExtent: 150.0,
-              delegate: SliverChildListDelegate(
-                [
-                  Container(
-                    color: Color(0xffff88ffc6),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            "23 MARS 12:00 - 18:00",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 20),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text("GLØSHAUGEN _ REALFAGSBYGGET",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400, fontSize: 13))
-                        ]),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: CustomButtonFixed(
-                        text: "SE VÅRE PREMIER",
-                        subtext: "airpods, ps5, xbox series x, nintendo switch",
-                        icon: Icons.campaign_rounded,
-                        onPressed: () => {}),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: CustomButtonFixed(
-                        text: "SE VÅRE SPILL",
-                        subtext: "55 forksjellige spill, 200 utviklere",
-                        icon: Icons.stadium_rounded,
-                        onPressed: () => {}),
-                  ),
-                  Container(color: Colors.white),
-                  Container(color: Colors.white),
-                  Container(color: Colors.white),
-                  Container(
-                    color: Colors.white,
-                    child: TextButton(
-                      onPressed: () => FirebaseAuth.instance.signOut(),
-                      child: Text("Logg av"),
-                    ),
-                  ),
-                ],
+                delegate: SliverChildListDelegate([Container()]),
+                itemExtent: 280),
+            // SliverFixedExtentList(
+            //     delegate: SliverChildListDelegate([ListOfGames()]),
+            //     itemExtent: 280),
+
+            SliverToBoxAdapter(
+              child: Container(
+                height: 200,
+                color: Colors.white,
+                child: TextButton(
+                  onPressed: () => FirebaseAuth.instance.signOut(),
+                  child: Text("Logg av"),
+                ),
               ),
             ),
           ],
@@ -260,9 +313,55 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class MyItemCarosell extends StatefulWidget {
+  const MyItemCarosell({
+    super.key,
+  });
+
+  @override
+  State<MyItemCarosell> createState() => _MyItemCarosellState();
+}
+
+class _MyItemCarosellState extends State<MyItemCarosell> {
+  final PageController _pageController = PageController(viewportFraction: 0.3);
+  double _currentPage = 0;
+  @override
+  void initState() {
+    _pageController.addListener(() {
+      setState(() {
+        _currentPage = _pageController.page!;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageView(
+      pageSnapping: true,
+      controller: _pageController,
+      children: [
+        Container(
+          color: Colors.blue,
+        ),
+        Container(
+          color: Colors.green,
+        )
+      ],
+    );
+  }
+}
+
 class UserHeaderInfo extends StatefulWidget {
-  final String name, uid;
-  const UserHeaderInfo({Key? key, required this.name, required this.uid})
+  final String name, uid, phone;
+  const UserHeaderInfo(
+      {Key? key, required this.name, required this.uid, required this.phone})
       : super(key: key);
 
   @override
@@ -322,7 +421,11 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
             SizedBox(
               height: 8,
             ),
-            Text(widget.uid, style: TextStyle(color: Colors.white)),
+            Text(
+                widget.phone.contains('+47')
+                    ? widget.phone.substring(3)
+                    : widget.phone,
+                style: TextStyle(color: Colors.white)),
             SizedBox(
               height: 32,
             ),

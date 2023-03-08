@@ -135,11 +135,11 @@ class _OnBoardingState extends State<OnBoarding> {
                 '. . .  Smoething went wrong! \n Please try again?'),
           ];
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Code not valid. Error: ${e.message}"),
-          duration: Duration(seconds: 10),
-          showCloseIcon: true,
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text("Code not valid. Error: ${e.message}"),
+        //   duration: Duration(seconds: 10),
+        //   showCloseIcon: true,
+        // ));
       }
     }
     setState(() {
@@ -183,7 +183,7 @@ class _OnBoardingState extends State<OnBoarding> {
                             children: [
                               // Shows info about the event
                               if (!claimingTicket) ...[
-                                Text("23 MARS 12:00 - 18:00",
+                                Text("23 MARS 14:00 - 18:00",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 20,
@@ -306,7 +306,7 @@ class _OnBoardingState extends State<OnBoarding> {
 
                                     decoration: InputDecoration(
                                       labelText: "Enter your phone number",
-                                      hintText: '000 00 000',
+                                      hintText: '... .. ...',
                                       contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 8),
                                       labelStyle: TextStyle(
