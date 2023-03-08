@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:caren/admin/admin_panel.dart';
 import 'package:caren/game_sliver.dart';
 import 'package:caren/onboarding.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:confetti/confetti.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_phone_auth_handler/firebase_phone_auth_handler.dart';
@@ -12,7 +14,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-// ...
+// ... flutter run -d chrome --web-renderer html --profile
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +85,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _scrollController = ScrollController();
   late ConfettiController _controllerBottomCenter;
+  int adminCounter = 0;
   @override
   void initState() {
     super.initState();
@@ -111,12 +114,42 @@ class _MyHomePageState extends State<MyHomePage> {
             SliverAppBar(
               stretch: true,
               pinned: true,
-              title: Text(
-                'NGA • NORWEGIAN GAME AWARDS',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xffff88ffc6),
-                    fontWeight: FontWeight.w400),
+              title: GestureDetector(
+                onTap: () async {
+                  if (adminCounter > 0) {
+                    adminCounter--;
+                  }
+// show toast!
+
+                  if (adminCounter == 0) {
+                    await FirebaseFirestore.instance
+                        .doc('/isAdmin/' + widget.streamUser.data!.uid)
+                        .get()
+                        .then((value) {
+                      if (value.exists) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AdminHome()));
+                      }
+                    }).catchError((e) {
+                      print('/isAdmin/' + widget.streamUser.data!.uid);
+                      adminCounter = 10;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("You are not an admin ;'("),
+                        ),
+                      );
+                    });
+                  }
+                },
+                child: Text(
+                  'NGA • NORWEGIAN GAME AWARDS',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xffff88ffc6),
+                      fontWeight: FontWeight.w400),
+                ),
               ),
               backgroundColor: Color(0xffff001e05),
               expandedHeight: 600.0,
