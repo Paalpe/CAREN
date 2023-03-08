@@ -71,3 +71,5 @@ build
 build/*
 build/
 .flutter-plugins-dependencies
+.flutter-plugins-dependencies
+.gitignore
