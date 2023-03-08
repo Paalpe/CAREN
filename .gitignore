@@ -75,3 +75,5 @@ build/
 .gitignore
 .flutter-plugins
 .gitignore
+pubspec.lock
+
