@@ -5,7 +5,6 @@ import 'package:caren/game_sliver.dart';
 import 'package:caren/onboarding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:confetti/confetti.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_phone_auth_handler/firebase_phone_auth_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         color: Color(0xffff001e05),
         debugShowCheckedModeBanner: false,
-        title: 'CAREN',
+        title: 'NGA • NORWEGIAN GAME AWARDS 2023',
         theme: ThemeData(
           appBarTheme: AppBarTheme(
               systemOverlayStyle: SystemUiOverlayStyle(
@@ -121,7 +120,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _scrollController = ScrollController();
   late ConfettiController _controllerBottomCenter;
-  int adminCounter = 0;
+  int adminCounter = 4;
   @override
   void initState() {
     super.initState();
@@ -150,35 +149,39 @@ class _MyHomePageState extends State<MyHomePage> {
             SliverAppBar(
               stretch: true,
               pinned: true,
-              title: GestureDetector(
-                onTap: () async {
-                  if (adminCounter > 0) {
-                    adminCounter--;
-                  }
+              title: TextButton(
+                onPressed: () async {
+                  print(adminCounter);
+                if (adminCounter > 0) {
+                  adminCounter--;
+                }
 // show toast!
 
-                  if (adminCounter == 0) {
-                    await FirebaseFirestore.instance
-                        .doc('/isAdmin/' + widget.streamUser.data!.uid)
-                        .get()
-                        .then((value) {
-                      if (value.exists) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AdminHome()));
-                      }
-                    }).catchError((e) {
-                      print('/isAdmin/' + widget.streamUser.data!.uid);
-                      adminCounter = 10;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("You are not an admin ;'("),
-                        ),
-                      );
-                    });
-                  }
-                },
+                if (adminCounter == 0) {
+                  await FirebaseFirestore.instance
+                      .doc('/isAdmin/' + widget.streamUser.data!.uid)
+                      .get()
+                      .then((value) {
+                    // if (value.data()!=null) {
+                    //   print(value.data());
+                    if (value.exists) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AdminHome()));
+                    }
+                    // }
+                  }).catchError((e) {
+                    print('/isAdmin/' + widget.streamUser.data!.uid);
+                    adminCounter = 10;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("You are not an admin ;'("),
+                      ),
+                    );
+                  });
+                }
+              },
                 child: Text(
                   'NGA • NORWEGIAN GAME AWARDS',
                   style: TextStyle(
