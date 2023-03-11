@@ -15,6 +15,7 @@ class OnBoarding extends StatefulWidget {
 class _OnBoardingState extends State<OnBoarding> {
   final _formKey = GlobalKey<FormState>();
   final namecontroller = TextEditingController();
+  final emailcontroller = TextEditingController();
   final phonecontroller = TextEditingController();
   final codecontroller = TextEditingController();
 
@@ -22,6 +23,7 @@ class _OnBoardingState extends State<OnBoarding> {
   bool smsCodeSent = false;
   bool loading = false;
   String userDisplayName = '';
+  String userEmail = '';
   String phoneNumber = '';
   String buttonText = 'CLAIM YOUR TICKET';
   String verificationId = '';
@@ -42,6 +44,7 @@ class _OnBoardingState extends State<OnBoarding> {
 
     userDisplayName = namecontroller.text;
     phoneNumber = phonecontroller.text;
+    userEmail = emailcontroller.text;
 
     // 1.0  click on the button
     if (buttonText == 'CLAIM YOUR TICKET') {
@@ -52,14 +55,25 @@ class _OnBoardingState extends State<OnBoarding> {
         ];
       });
     }
+    // 1.5 Ask for email
+    if (buttonText == 'CONFIRM' && userDisplayName != '') {
+      setState(() {
+        buttonText = 'Next';
+        animatedTextList = [
+          TypewriterAnimatedText(
+              '${userDisplayName.contains(" ") ? userDisplayName.split(" ").first : userDisplayName}? \nNice!\n \nWhat is your email-address?', //  We will send you a ticket to your email?
+              textAlign: TextAlign.start),
+        ];
+      });
+    }
 
     // 2.0 after the user has given name, ask for phone number
-    if (userDisplayName != "") {
+    if (userDisplayName != "" && buttonText == 'Next' && userEmail != '') {
       setState(() {
         buttonText = 'SEND SMS-CODE';
         animatedTextList = [
           TypewriterAnimatedText(
-              '${userDisplayName.contains(" ") ? userDisplayName.split(" ").first : userDisplayName}? \nNice!\n \nWhat is your phonenumber?',
+              'ahh, a ${userEmail.split("@")[1].split(".")[0]} address, \nGot it. \n \nWhat is your phonenumber?',
               textAlign: TextAlign.start),
         ];
       });
@@ -126,6 +140,7 @@ class _OnBoardingState extends State<OnBoarding> {
                 ? "Welcome! 🎉 Your ticket is now claimed!"
                 : "Welcome back! 🎉"),
           ));
+          FirebaseAuth.instance.currentUser!.updateEmail(userEmail);
           FirebaseAuth.instance.currentUser!.updateDisplayName(userDisplayName);
         });
       } on FirebaseAuthException catch (e) {
@@ -274,10 +289,56 @@ class _OnBoardingState extends State<OnBoarding> {
                                   );
                                 }),
 
+                              // asks for email address
+                              if (claimingTicket &&
+                                  userEmail == '' &&
+                                  userDisplayName != '')
+                                FormField(builder: (state) {
+                                  return TextFormField(
+                                    textInputAction: TextInputAction.next,
+                                    onFieldSubmitted: (value) =>
+                                        _continueButton(),
+                                    controller: emailcontroller,
+                                    keyboardType: TextInputType.emailAddress,
+                                    cursorWidth: 4,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your email address';
+                                      }
+                                      // add email validation
+                                      if (value.contains('@') &&
+                                          value.contains('.')) {
+                                        return null;
+                                      }
+                                      return 'Please enter a valid email address';
+                                    },
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 32),
+                                    textAlignVertical: TextAlignVertical.center,
+                                    decoration: InputDecoration(
+                                      labelText: "Enter your email address",
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 8),
+                                      labelStyle: TextStyle(
+                                        color: Color(0xffff001e05),
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Color(0xffff001e05)),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Color(0xffff001e05)),
+                                      ),
+                                    ),
+                                  );
+                                }),
+
                               // asks for phone number
                               if (claimingTicket &&
                                   userDisplayName != '' &&
-                                  smsCodeSent == false)
+                                  smsCodeSent == false &&
+                                  userEmail != '')
                                 FormField(builder: (state) {
                                   return TextFormField(
                                     textInputAction: TextInputAction.next,

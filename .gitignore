@@ -77,3 +77,4 @@ build/
 .gitignore
 pubspec.lock
 
+.DS_Store
