@@ -1,3 +1,4 @@
+
 import 'dart:math';
 
 import 'package:caren/admin/admin_panel.dart';
@@ -32,17 +33,18 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
-  String userDisplayName =""; String userEmail=""; bool isNewUser = false;
+  String userDisplayName = "";
+  String userEmail = "";
+  bool isNewUser = false;
 
-    void updateId(String userDisplayName, String userEmail, bool isNewUser) {
-      // FirebaseAuth.instance.currentUser?.updateDisplayName(userDisplayName);
+  void updateId(String userDisplayName, String userEmail, bool isNewUser) {
+    // FirebaseAuth.instance.currentUser?.updateDisplayName(userDisplayName);
     setState(() {
       this.userDisplayName = userDisplayName;
       this.userEmail = userEmail;
       this.isNewUser = isNewUser;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -78,14 +80,11 @@ class _MyAppState extends State<MyApp> {
               if (isNewUser) {
                 print("new user");
               }
-              
-              
 
               return MyHomePage(title: 'NGA', streamUser: snapshot);
             }
             return OnBoarding(
               onUserRegister: (userDisplayName, userEmail, isNewUSer) => {
-
                 updateId(userDisplayName, userEmail, isNewUser),
                 // // if (isNewUSer)
                 // //   {
@@ -152,46 +151,47 @@ class _MyHomePageState extends State<MyHomePage> {
               title: TextButton(
                 onPressed: () async {
                   print(adminCounter);
-                if (adminCounter > 0) {
-                  adminCounter--;
-                }
+                  if (adminCounter > 0) {
+                    adminCounter--;
+                  }
 // show toast!
 
-                if (adminCounter == 0) {
-                  await FirebaseFirestore.instance
-                      .doc('/isAdmin/' + widget.streamUser.data!.uid)
-                      .get()
-                      .then((value) {
-                    // if (value.data()!=null) {
-                    //   print(value.data());
-                    if (value.exists) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AdminHome()));
-                    }
-                    // }
-                  }).catchError((e) {
-                    print('/isAdmin/' + widget.streamUser.data!.uid);
-                    adminCounter = 10;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("You are not an admin ;'("),
-                      ),
-                    );
-                  });
-                }
-              },
+                  if (adminCounter == 0) {
+                    await FirebaseFirestore.instance
+                        .doc('/isAdmin/' + widget.streamUser.data!.uid)
+                        .get()
+                        .then((value) {
+                      // if (value.data()!=null) {
+                      //   print(value.data());
+                      if (value.exists) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AdminHome()));
+                      }
+                      // }
+                    }).catchError((e) {
+                      print('/isAdmin/' + widget.streamUser.data!.uid);
+                      adminCounter = 10;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("You are not an admin ;'("),
+                        ),
+                      );
+                    });
+                  }
+                },
                 child: Text(
-                  'NGA • NORWEGIAN GAME AWARDS',
+                  'NGA  •  NORWEGIAN GAME AWARDS',
                   style: TextStyle(
                       fontSize: 13,
+                      wordSpacing: 1.0002,
                       color: Color(0xffff88ffc6),
                       fontWeight: FontWeight.w400),
                 ),
               ),
               backgroundColor: Color(0xffff001e05),
-              expandedHeight: 600.0,
+              expandedHeight: 480.0,
               stretchTriggerOffset: 200,
               onStretchTrigger: () => goConfetti(),
               flexibleSpace: FlexibleSpaceBar(
@@ -209,9 +209,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Stack(
                           children: [
                             UserHeaderInfo(
-                                phone: snapshot.data!.phoneNumber!,
-                                name: snapshot.data!.displayName!,
-                                uid: snapshot.data!.phoneNumber!),
+                              phone: snapshot.data!.phoneNumber!,
+                              name: snapshot.data!.displayName!,
+                              uid: snapshot.data!.phoneNumber!,
+                              email: snapshot.data!.email!,
+                            ),
                             //BOTTOM CENTER
                             Align(
                               alignment: Alignment(0, -0.3),
@@ -398,9 +400,13 @@ class _MyItemCarosellState extends State<MyItemCarosell> {
 }
 
 class UserHeaderInfo extends StatefulWidget {
-  final String name, uid, phone;
+  final String name, uid, phone, email;
   const UserHeaderInfo(
-      {Key? key, required this.name, required this.uid, required this.phone})
+      {Key? key,
+      required this.name,
+      required this.uid,
+      required this.phone,
+      required this.email})
       : super(key: key);
 
   @override
@@ -443,13 +449,15 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
               dataModuleStyle:
                   QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square),
               foregroundColor: Color(0xffff88ffc6),
-              data: widget.uid,
+              // data: widget.uid,
+              data: 'www.gameAwards.no/',
               version: QrVersions.auto,
               size: 260.0,
             ),
             SizedBox(
               height: 32,
             ),
+           
             Text(
               widget.name,
               style: TextStyle(
@@ -457,13 +465,18 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
                   fontWeight: FontWeight.w700,
                   fontSize: 18),
             ),
+             SizedBox(
+              height: 8,
+            ),
+            Text(widget.email, style: TextStyle(color: Colors.white)),
             SizedBox(
               height: 8,
             ),
             Text(
                 widget.phone.contains('+47')
-                    ? widget.phone.substring(3)
-                    : widget.phone,
+                    ? '+47 ${widget.phone.substring(0, 3)} ${widget.phone.substring(3, 5)} ${widget.phone.substring(5, 7)} ${widget.phone.substring(7, 9)}'
+                    // add format +47 123 45 678,
+                    : widget.phone.substring(3),
                 style: TextStyle(color: Colors.white)),
             SizedBox(
               height: 32,

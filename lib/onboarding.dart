@@ -267,6 +267,7 @@ class _OnBoardingState extends State<OnBoarding> {
                                     onFieldSubmitted: (value) =>
                                         _continueButton(),
                                     controller: namecontroller,
+                                    autofillHints: const [AutofillHints.name],
                                     textCapitalization:
                                         TextCapitalization.words,
                                     cursorWidth: 4,
@@ -309,6 +310,10 @@ class _OnBoardingState extends State<OnBoarding> {
                                         _continueButton(),
                                     controller: emailcontroller,
                                     keyboardType: TextInputType.emailAddress,
+                                    // add autofill email on iOS
+                                    autofillHints: const [AutofillHints.email],
+
+
                                     cursorWidth: 4,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -357,6 +362,9 @@ class _OnBoardingState extends State<OnBoarding> {
                                     controller: phonecontroller,
                                     keyboardType: TextInputType.phone,
                                     // focusNode: myFocusNodePhone,
+                                    autofillHints: const [
+                                      AutofillHints.telephoneNumber
+                                    ],
                                     cursorWidth: 4,
                                     style: TextStyle(fontSize: 32),
                                     textAlign: TextAlign.center,
@@ -404,6 +412,7 @@ class _OnBoardingState extends State<OnBoarding> {
                                       FilteringTextInputFormatter.digitsOnly,
                                       LengthLimitingTextInputFormatter(6),
                                     ],
+
                                     onChanged: (value) => value.length == 6
                                         ? _continueButton()
                                         : null,
@@ -414,6 +423,9 @@ class _OnBoardingState extends State<OnBoarding> {
                                         : null,
                                     controller: codecontroller,
                                     // focusNode: myFocusNodeCode,
+                                    autofillHints: const [
+                                      AutofillHints.oneTimeCode
+                                    ],
                                     style: TextStyle(fontSize: 32),
                                     textCapitalization:
                                         TextCapitalization.words,
