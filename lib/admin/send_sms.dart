@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class SendSMSPage extends StatefulWidget {
   SendSMSPage({Key? key}) : super(key: key);
@@ -12,12 +16,81 @@ class SendSMSPage extends StatefulWidget {
 }
 
 class _SendSMSPageState extends State<SendSMSPage> {
+  final db = FirebaseFirestore.instance;
 // add controller to textfield
   final TextEditingController _controller = TextEditingController();
 
   var statusText = [TypewriterAnimatedText("bib boop")];
 
+  List<String> phones = [];
+  List<List<dynamic>> phoneSendt = [];
+  List<List<dynamic>> phoneFailed = [];
+
   var countbeforSend = 5;
+
+  Future<List<String>> getListOfPhones() async {
+    final response = await http.get(
+        Uri.parse('https://us-central1-caren-nga-23.cloudfunctions.net/helloWorld'),
+        headers: {'Authorization': 'Bearer ${_controller.text}'});
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(utf8.decode(response.bodyBytes));
+      print(jsonData["phoneList"]);
+      return (jsonData['phoneList'] as List)
+          .map((item) => item as String)
+          .toList();
+    } else {
+      print(response.reasonPhrase);
+      return ["Noe gikk galt!!"];
+    }
+  }
+
+  sendABatchOfSMS(List<dynamic> numbers) async {
+    // List<int> randomNumbers =
+    //     List.generate(200, (index) => Random().nextInt(1000));
+    // Send a batch of SMS 50 at a time to avoid hitting the rate limit of 100 SMS per second
+
+    for (int i = 0; i < numbers.length; i += 50) {
+      final batch = db.batch();
+      List<dynamic> phonesToSend = [];
+      if (i + 50 > numbers.length) {
+        phonesToSend = numbers.sublist(i);
+      } else {
+        phonesToSend = numbers.sublist(i, i + 50);
+      }
+      for (var phone in phonesToSend) {
+        final docRef = db.collection('messages').doc();
+        batch.set(docRef, {
+          'phone': phone,
+          'body': _controller.text,
+        });
+      }
+
+
+
+      batch.commit().then((_) {
+        print('Batch committed successfully.');
+        phoneSendt.add(phonesToSend);
+        setState(() {
+          statusText = [
+            TypewriterAnimatedText(
+                "Sendt ${phoneSendt.length * 50} (ish) av ${phones.length} meldinger")
+          ];
+        });
+      }).catchError((error) {
+        print('Error: $error');
+        phoneFailed.add(phonesToSend);
+        // add them to clipboard
+        Clipboard.setData(ClipboardData(text: phoneFailed.toString()));
+        setState(() {
+          statusText = [TypewriterAnimatedText("Noe gikk galt")];
+        });
+      });
+
+      await Future.delayed(Duration(seconds: 2));
+
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +117,6 @@ class _SendSMSPageState extends State<SendSMSPage> {
                 maxLength: 320,
                 maxLines: null,
                 minLines: null,
-                
-               
                 keyboardType: TextInputType.multiline,
                 selectionHeightStyle: BoxHeightStyle.max,
                 controller: _controller,
@@ -77,7 +148,7 @@ class _SendSMSPageState extends State<SendSMSPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: countbeforSend == 0
             ? null
-            : () {
+            : () async {
                 countbeforSend--;
                 statusText = [
                   TypewriterAnimatedText(
@@ -93,6 +164,22 @@ class _SendSMSPageState extends State<SendSMSPage> {
                   statusText = [
                     TypewriterAnimatedText("SMS sent!"),
                   ];
+                }
+                if (phones.isEmpty) {
+                  phones = await getListOfPhones();
+                  setState(() {
+                    statusText = [
+                      TypewriterAnimatedText(
+                          "Got list of phones -> ${phones.length} students"),
+                      // TypewriterAnimatedText(phones.toString()),
+                    ];
+                  });
+
+                }
+
+                if (countbeforSend == 0 && phones.isNotEmpty) {
+                  // await sendABatchOfSMS(List.generate(200, (index) => Random().nextInt(1000)));
+                   await sendABatchOfSMS(phones);
                 }
 
                 setState(() {});

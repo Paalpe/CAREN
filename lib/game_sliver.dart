@@ -108,112 +108,115 @@ class _SliverGamesFromItchState extends State<SliverGamesFromItch> {
                           minHeight: 200,
                           maxWidth: 400,
                         ),
-                        child: Dialog(
-                          backgroundColor: Colors.transparent,
-                          insetPadding: EdgeInsets.all(10),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              // clipBehavior: Clip.none,
-                              // alignment: Alignment.center,
-                              children: <Widget>[
-                                Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(15),
-                                            topRight: Radius.circular(15)),
-                                        color: Colors.grey[50],
-                                      ),
-                                      constraints: BoxConstraints(
-                                        minHeight: 200,
-                                        maxWidth: 400,
-                                      ),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.topCenter,
-                                      constraints: BoxConstraints(
-                                        minHeight: 200,
-                                        maxWidth: 400,
-                                      ),
-                                      child: Hero(
-                                          tag: games[index].id,
-                                          child: ShowImage(
-                                              game: games[index],
-                                              square: false)),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  constraints: BoxConstraints(
-                                    minHeight: 200,
-                                    maxWidth: 400,
-                                  ),
-                                  //round bottom corners
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(15),
-                                        bottomRight: Radius.circular(15)),
-                                    color: Colors.white,
-                                  ),
-
-                                  // height: 200,
-                                  // decoration: BoxDecoration(
-                                  //     borderRadius: BorderRadius.circular(15),
-                                  //     color: Colors.lightBlue),
-                                  padding: EdgeInsets.fromLTRB(20, 16, 20, 20),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Dialog(
+                            backgroundColor: Colors.transparent,
+                            insetPadding: EdgeInsets.all(10),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                // clipBehavior: Clip.none,
+                                // alignment: Alignment.center,
+                                children: <Widget>[
+                                  Stack(
+                                    alignment: Alignment.bottomCenter,
                                     children: [
-                                      Text(games[index].title,
-                                          style: TextStyle(fontSize: 24),
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 16),
-                                      Text(games[index].shortText,
-                                          style: TextStyle(fontSize: 16),
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 32),
-                                      Text(
-                                          games[index]
-                                              .contributors
-                                              .map((e) => e['name'])
-                                              .join(', '),
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Color(0xffff9105E6)),
-                                          textAlign: TextAlign.center),
-                                      SizedBox(height: 32),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.maybePop(context),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: Text('Back'),
-                                            ),
-                                          ),
-                                          // TextButton(
-                                          //   onPressed: () {},
-                                          //   child: Text('Download'),
-                                          // ),
-                                        ],
-                                      )
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(15),
+                                              topRight: Radius.circular(15)),
+                                          color: Colors.grey[50],
+                                        ),
+                                        constraints: BoxConstraints(
+                                          minHeight: 200,
+                                          maxWidth: 400,
+                                        ),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.topCenter,
+                                        constraints: BoxConstraints(
+                                          minHeight: 200,
+                                          maxWidth: 400,
+                                        ),
+                                        child: Hero(
+                                            tag: games[index].id,
+                                            child: ShowImage(
+                                                game: games[index],
+                                                square: false)),
+                                      ),
                                     ],
                                   ),
-                                ),
-                                // Positioned(
-                                //   top: -100,
-                                //   child:
-
-                                // ),
-                              ],
+                                  Container(
+                                    constraints: BoxConstraints(
+                                      minHeight: 200,
+                                      maxWidth: 400,
+                                    ),
+                                    //round bottom corners
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(15),
+                                          bottomRight: Radius.circular(15)),
+                                      color: Colors.white,
+                                    ),
+                        
+                                    // height: 200,
+                                    // decoration: BoxDecoration(
+                                    //     borderRadius: BorderRadius.circular(15),
+                                    //     color: Colors.lightBlue),
+                                    padding: EdgeInsets.fromLTRB(20, 16, 20, 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Text(games[index].title,
+                                            style: TextStyle(fontSize: 24),
+                                            textAlign: TextAlign.center),
+                                        SizedBox(height: 16),
+                                        Text(games[index].shortText,
+                                            style: TextStyle(fontSize: 16),
+                                            textAlign: TextAlign.center),
+                                        SizedBox(height: 32),
+                                        Text(
+                                            games[index]
+                                                .contributors
+                                                .map((e) => e['name'])
+                                                .join(', '),
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: Color(0xffff9105E6)),
+                                            textAlign: TextAlign.center),
+                                        SizedBox(height: 32),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.maybePop(context),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                child: Text('Back'),
+                                              ),
+                                            ),
+                                            // TextButton(
+                                            //   onPressed: () {},
+                                            //   child: Text('Download'),
+                                            // ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  // Positioned(
+                                  //   top: -100,
+                                  //   child:
+                        
+                                  // ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
