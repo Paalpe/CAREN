@@ -1,12 +1,14 @@
-import 'dart:developer';
-
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+typedef void OnUserRegisterCallback(
+    String userDisplayName, String userEmail, bool isNewUSer);
+
 class OnBoarding extends StatefulWidget {
-  const OnBoarding({Key? key}) : super(key: key);
+  final OnUserRegisterCallback onUserRegister;
+  const OnBoarding({Key? key, required this.onUserRegister}) : super(key: key);
 
   @override
   State<OnBoarding> createState() => _OnBoardingState();
@@ -135,13 +137,15 @@ class _OnBoardingState extends State<OnBoarding> {
             .signInWithCredential(PhoneAuthProvider.credential(
                 verificationId: verificationId, smsCode: codecontroller.text))
             .then((value) {
+          FirebaseAuth.instance.currentUser!.updateEmail(userEmail).then((value) => FirebaseAuth.instance.currentUser?.updateDisplayName(userDisplayName));
+
+          widget.onUserRegister(
+              userDisplayName, userEmail, value.additionalUserInfo!.isNewUser);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(value.additionalUserInfo!.isNewUser
                 ? "Welcome! 🎉 Your ticket is now claimed!"
                 : "Welcome back! 🎉"),
           ));
-          FirebaseAuth.instance.currentUser!.updateEmail(userEmail);
-          FirebaseAuth.instance.currentUser!.updateDisplayName(userDisplayName);
         });
       } on FirebaseAuthException catch (e) {
         setState(() {
@@ -150,12 +154,17 @@ class _OnBoardingState extends State<OnBoarding> {
                 '. . .  Smoething went wrong! \n Please try again?'),
           ];
         });
+
         // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         //   content: Text("Code not valid. Error: ${e.message}"),
         //   duration: Duration(seconds: 10),
         //   showCloseIcon: true,
         // ));
       }
+      // if (FirebaseAuth.instance.currentUser != null) {
+      //   FirebaseAuth.instance.currentUser!.updateDisplayName(userDisplayName);
+      //   FirebaseAuth.instance.currentUser!.updateEmail(userEmail);
+      // }
     }
     setState(() {
       loading = false;

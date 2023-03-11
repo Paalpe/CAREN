@@ -24,10 +24,27 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
+  String userDisplayName =""; String userEmail=""; bool isNewUser = false;
+
+    void updateId(String userDisplayName, String userEmail, bool isNewUser) {
+      // FirebaseAuth.instance.currentUser?.updateDisplayName(userDisplayName);
+    setState(() {
+      this.userDisplayName = userDisplayName;
+      this.userEmail = userEmail;
+      this.isNewUser = isNewUser;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -59,9 +76,28 @@ class MyApp extends StatelessWidget {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              if (isNewUser) {
+                print("new user");
+              }
+              
+              
+
               return MyHomePage(title: 'NGA', streamUser: snapshot);
             }
-            return OnBoarding();
+            return OnBoarding(
+              onUserRegister: (userDisplayName, userEmail, isNewUSer) => {
+
+                updateId(userDisplayName, userEmail, isNewUser),
+                // // if (isNewUSer)
+                // //   {
+                // //     FirebaseFirestore.instance
+                // //         .doc('/users/' + userEmail)
+                // //         .set({'displayName': userDisplayName})
+                // //   }
+                // snapshot.data?.updateDisplayName(userDisplayName),
+                // snapshot.data?.updateEmail(userEmail),
+              },
+            );
           },
         ),
       ),
