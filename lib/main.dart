@@ -474,7 +474,11 @@ class _UserHeaderInfoState extends State<UserHeaderInfo> {
             ),
             Text(
                 widget.phone.contains('+47')
-                    ? '+47 ${widget.phone.substring(0, 3)} ${widget.phone.substring(3, 5)} ${widget.phone.substring(5, 7)} ${widget.phone.substring(7, 9)}'
+                // add format 123 45 678,
+
+                ? '${widget.phone.substring(0, 3)} ${widget.phone.substring(3, 6)} ${widget.phone.substring(6, 8)} ${widget.phone.substring(8, 11)}'
+
+                    // ? '${widget.phone.substring(0, 3)} ${widget.phone.substring(3, 5)} ${widget.phone.substring(5, 7)} ${widget.phone.substring(7, 9)}'
                     // add format +47 123 45 678,
                     : widget.phone.substring(3),
                 style: TextStyle(color: Colors.white)),

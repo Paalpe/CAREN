@@ -30,7 +30,7 @@ class _SendSMSPageState extends State<SendSMSPage> {
 
   Future<List<String>> getListOfPhones() async {
     final response = await http.get(
-        Uri.parse('https://us-central1-caren-nga-23.cloudfunctions.net/helloWorld'),
+        Uri.parse('http://127.0.0.1:5001/caren-nga-23/us-central1/getPhones/get-phones'),
         headers: {'Authorization': 'Bearer ${_controller.text}'});
 
     if (response.statusCode == 200) {
@@ -40,7 +40,7 @@ class _SendSMSPageState extends State<SendSMSPage> {
           .map((item) => item as String)
           .toList();
     } else {
-      print(response.reasonPhrase);
+      print(response.body);
       return ["Noe gikk galt!!"];
     }
   }
@@ -61,7 +61,7 @@ class _SendSMSPageState extends State<SendSMSPage> {
       for (var phone in phonesToSend) {
         final docRef = db.collection('messages').doc();
         batch.set(docRef, {
-          'phone': phone,
+          'to': phone,
           'body': _controller.text,
         });
       }

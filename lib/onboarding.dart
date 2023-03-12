@@ -75,7 +75,7 @@ class _OnBoardingState extends State<OnBoarding> {
         buttonText = 'SEND SMS-CODE';
         animatedTextList = [
           TypewriterAnimatedText(
-              'ahh, a ${userEmail.split("@")[1].split(".")[0]} address, \nGot it. \n \nWhat is your phonenumber?',
+              'ahh, a "${userEmail.split("@")[1].split(".")[0]}" address, \nGot it. \n \nWhat is your phonenumber?',
               textAlign: TextAlign.start),
         ];
       });
